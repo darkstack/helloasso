@@ -4,11 +4,25 @@
     </head>
     <body>
         <div id="p">TEST</div>
+        <div id="msg"><div>
         <script>
             const websocket = new WebSocket('ws://'+ location.host + '/notify');
             websocket.addEventListener('message', ev => {
                 console.log(ev.data);
-                let div = document.createTextNode(ev.data);
+                let ndiv = document.createElement('div');
+                let data = document.createTextNode(ev.data);
+                ndiv.appendChild(data);
+                message = document.getElementById('msg');
+                document.body.insertBefore(ndiv,message);
+            });
+
+            websocket.addEventListener('error', ev => {
+                let div = document.createTextNode(ev);
+                document.body.append(div);
+            });
+
+            websocket.addEventListener('close', ev => {
+                let div = document.createTextNode(ev);
                 document.body.append(div);
             });
 

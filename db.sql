@@ -1,0 +1,6 @@
+CREATE TABLE orders (
+id INTEGER NOT NULL UNIQUE,
+amount REAL NOT NULL,
+message TEXT,
+name TEXT
+);

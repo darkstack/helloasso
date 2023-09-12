@@ -1,39 +1,61 @@
 #!/bin/env python3
-from flask import Flask, make_response, render_template,request,jsonify
+import os
+import sqlite3
+from flask import Flask, make_response, render_template,request,jsonify,g 
 from flask_sock import Sock
-
-app = Flask(__name__)
-sock = Sock(app)
+from classes import Payement, Client
 
 
 
-class Payement:
-    amount: float
-    name : str 
-    message : str
-    def __init__(self,amount,name,message) -> None:
-        self.amount = amount
-        self.name = name 
-        self.message = message
 
-    def save():
-        return 
-    def __repr__(self) -> str:
-        return '{} - {}€- {}'.format(self.name,self.amount/100,self.message)
-
-class Client:
-    def __init__(self,sock) -> None:
-        self.sock = sock
-    
-    def send_event(self, data):
-        print(self.sock)
-        self.sock.send(data)
 
 clients_list = []
 payements_list : list[Payement] =  []
+
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_mapping(
+    DATABASE=os.path.join(app.instance_path,'db.sqlite')
+)
+
+sock = Sock(app)
+
+
+def get_db():    
+    db = getattr(g, '_database', None)
+    if db is None: 
+        db = g.db = sqlite3.connect('db.sqlite')
+    return db
+
+@app.teardown_appcontext
+def close(exception):
+    db = getattr(g, 'db', None)
+    if db is not None:
+        db.close()
+
 @app.route('/')
 def index():
     return  render_template('index.html')
+
+@app.route('/show')
+def show(): 
+    db = get_db()
+    cur = db.cursor()
+    cur.execute('select * from orders;')
+    info = cur.fetchall();
+    val = "" 
+    for i in info:
+        val += '{} {} <br/>'.format(i[0],i[1])
+    return make_response(val, 200)
+
+@app.route('/test')
+def test():
+    p = Payement(1,5000,'TEST','TEST')
+    for c in clients_list:
+        try: 
+            c.send_event(repr(p))
+        except:
+            clients_list.remove(c)
+    return make_response('Test',200)
 
 @app.route('/last')
 def last():
@@ -60,9 +82,11 @@ def notifications():
     if request.json is not None:
         print(request.json)
         if request.json['eventType'] == 'Order':
-            p = Payement(request.json['data']['amount']['total'],
+            p = Payement(request.json['data']['id'],
+                         request.json['data']['amount']['total'],
                          request.json['data']['items'][0]['customFields'][0]['answer'],
                          request.json['data']['payer']['firstName'])
+            p.save(get_db());
             payements_list.append(p)
             for c in clients_list:
                 try:
