@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <title>Hello Asso</title>
+    </head>
+    <body>
+        <div id="p">TEST</div>
+        <script>
+            const websocket = new WebSocket('ws://'+ location.host + '/notify');
+            websocket.addEventListener('message', ev => {
+                console.log(ev.data);
+                let div = document.createTextNode(ev.data);
+                document.body.append(div);
+            });
+
+        </script>
+    </body>
+</html>
