@@ -1,22 +1,22 @@
 #!/bin/env python3
 import os
 import sqlite3
-from flask import Flask, make_response, render_template,request,jsonify,g 
+from flask import Flask, make_response, render_template,request,g,jsonify
 from flask_sock import Sock
-from classes import Payement, Client
+from classes import Payment, Client, CustomJSONProvider
 
 
 
 
 
 clients_list = []
-payements_list : list[Payement] =  []
+payments_list : list[Payment] =  []
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_mapping(
     DATABASE=os.path.join(app.instance_path,'db.sqlite')
 )
-
+app.json = CustomJSONProvider(app)
 sock = Sock(app)
 
 
@@ -31,6 +31,13 @@ def close(exception):
     db = getattr(g, 'db', None)
     if db is not None:
         db.close()
+
+def notify_client_payment(msg):
+    for c in clients_list:
+        try: 
+            c.send_event(app.json.dumps(msg))
+        except:
+            clients_list.remove(c)
 
 @app.route('/')
 def index():
@@ -49,24 +56,16 @@ def show():
 
 @app.route('/test')
 def test():
-    p = Payement(1,5000,'TEST','TEST')
-    for c in clients_list:
-        try: 
-            c.send_event(repr(p))
-        except:
-            clients_list.remove(c)
-    return make_response('Test',200)
+    p = Payment(1,5000,'TEST','TEST')
+    notify_client_payment(p)
+    return jsonify(p), 200
 
 @app.route('/last')
 def last():
     print(len(clients_list))
-    if(len(payements_list) > 0):
-        p = payements_list[0]
-        for c in clients_list:
-            try:
-                c.send_event(repr(p))
-            except: 
-                clients_list.remove(c)
+    if(len(payments_list) > 0):
+        p = payments_list[0]
+        notify_client_payment(p)
     return make_response('last',200)
 
 @sock.route('/notify')
@@ -82,17 +81,13 @@ def notifications():
     if request.json is not None:
         print(request.json)
         if request.json['eventType'] == 'Order':
-            p = Payement(request.json['data']['id'],
+            p = Payment(request.json['data']['id'],
                          request.json['data']['amount']['total'],
                          request.json['data']['items'][0]['customFields'][0]['answer'],
                          request.json['data']['payer']['firstName'])
             p.save(get_db());
-            payements_list.append(p)
-            for c in clients_list:
-                try:
-                    c.send_event(repr(p))
-                except: 
-                    clients_list.remove(c)
+            payments_list.append(p)
+            notify_client_payment(p)
         return make_response('OK',200)
 
     return make_response('Not Handled',400)

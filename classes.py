@@ -1,6 +1,16 @@
 from sqlite3 import Connection
+import json 
+from flask.json.provider import DefaultJSONProvider
 
-class Payement:
+
+class CustomJSONProvider(DefaultJSONProvider):
+    @staticmethod
+    def default(obj) -> dict :
+        if isinstance(obj,Payment):
+            return obj.to_json()
+        return DefaultJSONProvider.default(obj)
+
+class Payment(json.JSONEncoder):
     id : int
     amount: float
     name : str 
@@ -28,6 +38,13 @@ class Payement:
         return 
     def __repr__(self) -> str:
         return '{} - {}€- {}'.format(self.name,self.amount/100,self.message)
+    def to_json(self) -> dict:
+        return {
+                "name":self.name,
+                "amount": self.amount/100,
+                "message": self.message
+        }
+
 
 class Client:
     def __init__(self,sock) -> None:

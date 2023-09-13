@@ -1,19 +1,36 @@
 <html>
     <head>
         <title>Hello Asso</title>
+        <style>
+        .notif {
+            margin: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 2px solid #1100ff;
+        }
+        </style>
     </head>
     <body>
-        <div id="p">TEST</div>
-        <div id="msg"><div>
+        <div id="msg"></div>
         <script>
-            const websocket = new WebSocket('ws://'+ location.host + '/notify');
-            websocket.addEventListener('message', ev => {
-                console.log(ev.data);
+            function addNode(msg){
+                let notifs = document.getElementsByClassName("notif");
+                if(notifs.length > 5)
+                {
+                    notifs.slice(0,notifs.length-5).forEach(e => e.remove());
+                }
+                console.log(msg);
                 let ndiv = document.createElement('div');
-                let data = document.createTextNode(ev.data);
+                ndiv.className='notif';
+                let data = document.createTextNode(msg);
                 ndiv.appendChild(data);
                 message = document.getElementById('msg');
                 document.body.insertBefore(ndiv,message);
+            }
+
+            const websocket = new WebSocket('ws://'+ location.host + '/notify');
+            websocket.addEventListener('message', ev => {
+                addNode(ev.data);
             });
 
             websocket.addEventListener('error', ev => {
