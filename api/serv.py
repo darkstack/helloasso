@@ -56,7 +56,7 @@ def show():
 
 @app.route('/test')
 def test():
-    p = Payment(1,5000,'TEST','TEST')
+    p = Payment(1,5000,'TEST DE MESSAGE BIEN LONG SKLDJQLKDJQLKSJDQLSKJDQLKJD','Nom donation')
     notify_client_payment(p)
     return jsonify(p), 200
 

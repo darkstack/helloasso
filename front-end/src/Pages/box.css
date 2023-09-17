@@ -1,0 +1,25 @@
+.box {
+    display: flex;
+    flex-direction: row;
+    background-color: #fcb900;
+    margin-bottom: 2px;
+}
+
+.amount:before {
+    content:'€'
+}
+
+.amount {
+    background-color: #fd7e14;
+    padding-right: 2px
+}
+
+.name {
+    padding-right: 2px 
+}
+
+.message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

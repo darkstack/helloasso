@@ -15,7 +15,7 @@ class Payment(json.JSONEncoder):
     amount: float
     name : str 
     message : str
-    def __init__(self,id,amount,name,message) -> None:
+    def __init__(self,id,amount,message,name) -> None:
         self.id = id 
         self.amount = amount
         self.name = name 
