@@ -36,6 +36,16 @@ class Payment(json.JSONEncoder):
             print("Can't save?")
 
         return 
+
+    @staticmethod 
+    def get_all(conn: Connection):
+        cur = conn.cursor()
+        cur.execute("select id,amount,message,name from orders")
+        data = cur.fetchall()
+        if data is not None:
+            return [Payment(p[0],p[1],p[2],p[3]) for p in data]
+        return None
+
     def __repr__(self) -> str:
         return '{} - {}€- {}'.format(self.name,self.amount/100,self.message)
     def to_json(self) -> dict:

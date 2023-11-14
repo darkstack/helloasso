@@ -1,0 +1,30 @@
+<style>
+.like {
+    display: block;
+    width: 384px; 
+    height: 161px;
+    margin:0 auto;
+}
+.pause {
+    animation-play-state: paused;
+}
+div {
+    width: 384px;
+    margin:0 auto;
+    text-align:center;
+}
+
+</style>
+<div *ngIf="playing">
+    <audio autoplay>
+        <source src="/assets/sound.mp3"/>
+    </audio>
+    <video autoplay (ended)="onEnd()">
+        <source src="/assets/img.mp4"/>
+    </video>
+    <div>
+        <p>{{ Name }}</p>
+        <p>{{ Euro }}</p>
+        <p>{{ Message }}</p>
+    </div>
+</div>

@@ -60,6 +60,16 @@ def test():
     notify_client_payment(p)
     return jsonify(p), 200
 
+@app.route('/replay')
+def replay():
+    ps = Payment.get_all(get_db())
+    print(ps)
+    if ps:
+        for p in ps:
+            print(repr(p))
+            notify_client_payment(p)
+    return jsonify(ps), 200
+
 @app.route('/last')
 def last():
     print(len(clients_list))
