@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Observable, Observer, Subject} from 'rxjs';
+import {observable, Observable, Observer, Subject} from 'rxjs';
 import { WSMessage } from '../app/models/WSMessage';
 @Injectable({
     providedIn: 'root',
@@ -11,6 +11,9 @@ export class WebsocketService {
     
     public Messages: Subject<WSMessage>
 
+
+    trydelay = function(ms:number) { new Promise(res => setTimeout(res, ms));}
+
     constructor() {
         this.connect();
         this.Messages = new Subject<WSMessage>();
@@ -20,7 +23,7 @@ export class WebsocketService {
         return !this.isConnected;
     }
     connect(){
-        this.socket = new WebSocket('ws://localhost:5000/notify');
+     this.socket = new WebSocket('ws://localhost:5000/notify');
 
     this.socket.onopen = () => {
       this.isConnected = true;
@@ -46,5 +49,17 @@ export class WebsocketService {
         console.log("Connection");
     }
 
+    async reconnect(){
+        while(!this.isConnected){
+            try{
+                this.connect();
+                await this.trydelay(5000);
+
+            }
+            catch{
+                console.log("Retrying");
+            }
+        }
+    }
 
 }
