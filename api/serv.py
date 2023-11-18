@@ -95,7 +95,7 @@ def total():
     data= Payment.get_all(get_db())
     if data is not None: 
         total = sum(x.amount for x in data)
-        return jsonify(total), 200 
+        return jsonify(float(total/100)), 200 
     else: 
         return jsonify(0);
 
