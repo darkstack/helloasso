@@ -8,3 +8,8 @@ export class WSMessage {
     Name : String;
     Euro : number;
 }
+
+export class Donator {
+    name : String;
+    amount : number;
+}

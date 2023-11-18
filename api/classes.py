@@ -8,7 +8,38 @@ class CustomJSONProvider(DefaultJSONProvider):
     def default(obj) -> dict :
         if isinstance(obj,Payment):
             return obj.to_json()
+        
+        if isinstance(obj,Donator):
+            return obj.to_json()
         return DefaultJSONProvider.default(obj)
+
+
+class Donator(json.JSONEncoder):
+    name : str
+    amount : float 
+
+    @staticmethod
+    def top_donator(conn: Connection): 
+        cur = conn.cursor()
+        cur.execute("""select name, sum(amount) from orders
+                       group by name 
+                       LIMIT 5
+                    """)
+        data = cur.fetchall();
+        print(data);
+        if data is not None : 
+            return [Donator(p[0],p[1]) for p in data]
+        else:
+            return None
+
+    def __init__(self,name,amount) -> None:
+        self.name = name 
+        self.amount = float(amount/100)
+
+    def to_json(self) -> dict : 
+        return { "name" : self.name, 
+                "amount": self.amount 
+        } 
 
 class Payment(json.JSONEncoder):
     id : int
@@ -45,6 +76,7 @@ class Payment(json.JSONEncoder):
         if data is not None:
             return [Payment(p[0],p[1],p[2],p[3]) for p in data]
         return None
+
 
     def __repr__(self) -> str:
         return '{} - {}€- {}'.format(self.name,self.amount/100,self.message)

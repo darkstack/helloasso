@@ -1,1 +1,12 @@
-<p>topdonors works!</p>
+<table>
+    <thead>
+        <th>Nom</th>
+        <th>Montant</th>
+    </thead>
+    <tbody>
+        <tr *ngFor="let d of donators" >
+            <td>{{d.name}}</td>
+            <td>{{d.amount}}</td>
+        </tr>
+    </tbody>
+</table>

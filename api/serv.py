@@ -1,11 +1,12 @@
 #!/bin/env python3
 import os
+from re import A
 import sqlite3
 from flask import Flask, make_response, render_template,request,g,jsonify
 from flask_sock import Sock
-from classes import Payment, Client, CustomJSONProvider
-
-
+from classes import Payment, Client,Donator, CustomJSONProvider
+import random
+from flask_cors import CORS,cross_origin
 
 
 
@@ -18,6 +19,8 @@ app.config.from_mapping(
 )
 app.json = CustomJSONProvider(app)
 sock = Sock(app)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 def get_db():    
@@ -43,20 +46,21 @@ def notify_client_payment(msg):
 def index():
     return  render_template('index.html')
 
-@app.route('/show')
-def show(): 
-    db = get_db()
-    cur = db.cursor()
-    cur.execute('select * from orders;')
-    info = cur.fetchall();
-    val = "" 
-    for i in info:
-        val += '{} {} <br/>'.format(i[0],i[1])
-    return make_response(val, 200)
+#@app.route('/show')
+#def show(): 
+#    db = get_db()
+#    cur = db.cursor()
+#    cur.execute('select * from orders;')
+#    info = cur.fetchall();
+#    val = "" 
+#    for i in info:
+#        val += '{} {} <br/>'.format(i[0],i[1])
+#    return make_response(val, 200)
 
 @app.route('/test')
 def test():
-    p = Payment(1,5000,'TEST DE MESSAGE BIEN LONG SKLDJQLKDJQLKSJDQLSKJDQLKJD','Nom donation')
+    p = Payment(int(random.random()*100),5000,'TEST DE MESSAGE BIEN LONG SKLDJQLKDJQLKSJDQLSKJDQLKJD','Nom donation')
+    p.save(get_db())
     notify_client_payment(p)
     return jsonify(p), 200
 
@@ -85,6 +89,24 @@ def notify(sock):
         data = sock.receive()
         sock.send(data)
 
+@app.route('/total')
+@cross_origin()
+def total():
+    data= Payment.get_all(get_db())
+    if data is not None: 
+        total = sum(x.amount for x in data)
+        return jsonify(total), 200 
+    else: 
+        return jsonify(0);
+
+@app.route('/topdonators')
+@cross_origin()
+def topdonator(): 
+    data = Donator.top_donator(get_db())
+    if data is not None: 
+        return jsonify(data), 200
+    else: 
+        return jsonify(0);
 
 @app.route('/notifications',methods=['POST'])
 def notifications():
