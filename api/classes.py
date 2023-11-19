@@ -43,11 +43,12 @@ class Donator(json.JSONEncoder):
 
 class Payment(json.JSONEncoder):
     id : int
+    id_hello : int 
     amount: float
     name : str 
     message : str
     def __init__(self,id,amount,message,name) -> None:
-        self.id = id 
+        self.id_hello = id 
         self.amount = amount
         self.name = name 
         self.message = message
@@ -55,9 +56,9 @@ class Payment(json.JSONEncoder):
     def save(self, conn : Connection):
         try:
             conn.cursor()
-            conn.execute("insert into orders values (:id,:amount,:message,:name)",
+            conn.execute("insert into orders (id_hello,amount,message,name) values (:id_hello,:amount,:message,:name)",
                         {
-                            "id" : self.id,
+                            "id_hello" : self.id_hello,
                             "amount" : self.amount,
                             "message" : self.message,
                             "name" : self.name
@@ -71,10 +72,10 @@ class Payment(json.JSONEncoder):
     @staticmethod 
     def get_all(conn: Connection):
         cur = conn.cursor()
-        cur.execute("select id,amount,message,name from orders")
+        cur.execute("select id,id_hello,amount,message,name from orders")
         data = cur.fetchall()
         if data is not None:
-            return [Payment(p[0],p[1],p[2],p[3]) for p in data]
+            return [Payment(p[1],p[2],p[3],p[4]) for p in data]
         return None
 
 

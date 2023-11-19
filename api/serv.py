@@ -113,10 +113,22 @@ def notifications():
     if request.json is not None:
         print(request.json)
         if request.json['eventType'] == 'Order':
+            name = ''
+            message = '' 
+            try:
+                fields = request.json['data']['items'][0]['customFields']
+                for f in fields:
+                    if f['name'] == 'Message':
+                        message = f['answer']
+                    if f['name'] == 'Pseudo':
+                        name = f['answer']
+            except:
+                print('Fail to parse');
+
             p = Payment(request.json['data']['id'],
                          request.json['data']['amount']['total'],
-                         request.json['data']['items'][0]['customFields'][0]['answer'],
-                         request.json['data']['payer']['firstName'])
+                         message,
+                         name)
             p.save(get_db());
             payments_list.append(p)
             notify_client_payment(p)
