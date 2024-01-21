@@ -22,7 +22,8 @@ class Donator(json.JSONEncoder):
     def top_donator(conn: Connection): 
         cur = conn.cursor()
         cur.execute("""select name, sum(amount) from orders
-                       group by name 
+                       group by name
+                       order by sum(amount) desc
                        LIMIT 5
                     """)
         data = cur.fetchall();

@@ -59,7 +59,7 @@ def index():
 
 @app.route('/test')
 def test():
-    p = Payment(int(random.random()*100),5000,'TEST DE MESSAGE BIEN LONG SKLDJQLKDJQLKSJDQLSKJDQLKJD','Nom donation')
+    p = Payment(int(random.random()*100),0,'TEST DE MESSAGE BIEN LONG SKLDJQLKDJQLKSJDQLSKJDQLKJD','Test')
     p.save(get_db())
     notify_client_payment(p)
     return jsonify(p), 200
