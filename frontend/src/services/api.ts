@@ -13,10 +13,10 @@ export class ApiService {
     }
 
     Total() {
-        return this.httpClient.get(`${environment.apiUrl}/total`);
+        return this.httpClient.get(`https://${environment.apiUrl}/total`);
     }
 
     TopDonators() : Observable<Donator[]> {
-        return this.httpClient.get<Donator[]>(`${environment.apiUrl}/topdonators`);
+        return this.httpClient.get<Donator[]>(`https://${environment.apiUrl}/topdonators`);
     }
 }

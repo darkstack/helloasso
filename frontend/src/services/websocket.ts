@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {observable, Observable, Observer, Subject} from 'rxjs';
 import { WSMessage } from '../app/models/WSMessage';
+import {environment} from '../environments/environment';
 @Injectable({
     providedIn: 'root',
 })
@@ -23,7 +24,7 @@ export class WebsocketService {
         return !this.isConnected;
     }
     connect(){
-     this.socket = new WebSocket('ws://localhost:5000/notify');
+     this.socket = new WebSocket((environment.production?'wss://':'ws://') +environment.apiUrl+'/notify');
 
     this.socket.onopen = () => {
       this.isConnected = true;
